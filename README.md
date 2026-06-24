@@ -1,9 +1,4 @@
-# Precision GPS Timing & Hardware Benchmarking System
-
-**Project Context:** ECE 111 Hardware Benchmarking  
-**Objective:** Engineer a Stratum-1 network time server on a Raspberry Pi 4, validate nanosecond-level PPS (Pulse-Per-Second) synchronization, and execute hardware architecture showdowns (NEO-7M vs. NEO-6M).
-
----
+# Precision GPS Timing & Hardware System
 
 ## 🏗️ System Architecture
 This system utilizes a tiered failover hierarchy managed by the `chronyd` daemon to ensure constant, high-precision system time, even in completely offline environments.
