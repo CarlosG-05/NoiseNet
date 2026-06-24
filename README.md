@@ -41,21 +41,21 @@ The deployment process is fully automated via bash scripts featuring built-in ha
 ### 1. OS & GPS Deployment (`setup_gps.sh`)
 Frees the high-performance hardware UART, binds the PPS GPIO overlay, installs `gpsd`, and verifies physical wiring.
 ```bash
-sudo ./setup_gps.sh
+sudo ./NEO_7M_SetUp.sh
 ```
 *(Requires Reboot)*
 
 ### 2. RTC Deployment (`setup_rtc.sh`)
 Enables the ARM I2C bus, mounts the `ds3231` kernel overlay, and tests the hardware hex address (0x68).
 ```bash
-sudo ./setup_rtc.sh
+sudo ./RTC_SetUp.sh
 ```
 *(Requires Reboot)*
 
 ### 3. Failover Configuration (`setup_chrony_modem_priority.sh`)
 Injects the prioritized Stratum failover logic into the `chrony` daemon. 
 ```bash
-sudo ./setup_chrony_modem_priority.sh
+sudo ./Chrony_SetUp.sh
 ```
 
 ---
@@ -66,9 +66,9 @@ sudo ./setup_chrony_modem_priority.sh
 Used for Test 2.1. Automatically polls `chronyc sourcestats` over a 1-hour period, comparing the electrical variance (Std Dev) of the modern NEO-7M against the older NEO-6M, exporting results to a CSV file.
 * **Usage:** `nohup python3 jitter_logger.py &` (Runs safely in the background).
 
-### Single-Shot Coordinates (`get_coords_once.py`)
+### Single-Shot Coordinates (`get_gpscoords.py`)
 A command-line utility that safely taps into the `gpsd` socket, bypasses the daemon handshake, pulls a single highly-accurate TPV (Time-Position-Velocity) coordinate, and exits.
-* **Usage:** `python3 get_coords_once.py`
+* **Usage:** `python3 get_gpscoords.py`
 * **Dependencies:** `sudo apt install python3-gps`
 
 ---
