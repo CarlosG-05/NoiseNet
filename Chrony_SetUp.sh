@@ -20,39 +20,56 @@ fi
 
 # Write the custom network-preferred configuration
 cat << 'EOF' > /etc/chrony/chrony.conf
-# ------------------------------------------------------------------------------
-# PRIORITY 1: Network / 4G Modem (The Primary Master)
-# ------------------------------------------------------------------------------
-# The 'prefer trust' tags force Chrony to select these sources over the GPS
-# as long as an internet connection is actively detected.
-pool 2.debian.pool.ntp.org iburst prefer trust
-pool time.nist.gov iburst prefer trust
+# /etc/chrony/chrony.conf
+# Stratum-1 NTP Server Configuration (GPS + PPS + Network + RTC)
 
-# ------------------------------------------------------------------------------
-# PRIORITY 2: Hardware Backup (NEO-7M GPS)
-# ------------------------------------------------------------------------------
-# The 'prefer' tag is removed here so it acts strictly as an offline fallback.
-refclock SHM 0 offset 0.1 delay 0.2 refid NMEA
-refclock PPS /dev/pps0 refid PPS lock NMEA
-
-# ------------------------------------------------------------------------------
-# PRIORITY 3: Hardware Failsafe (DS3231 RTC)
-# ------------------------------------------------------------------------------
-# Stratum 10 ensures this is only claimed if both Modem and GPS are offline.
-#refclock RTC /dev/rtc0 stratum 10 refid RTC
-
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # System Directives
-# ------------------------------------------------------------------------------
-makestep 1 -1
-driftfile /var/lib/chrony/chrony.drift
+# ==============================================================================
+# Step the system clock instead of slewing it if the adjustment is larger than
+# one second, but only in the first three clock updates.
+makestep 1 3
 
-rtcsync
+# Stop bad estimates upsetting machine clock.
+maxupdateskew 100.0
 
+# Get TAI-UTC offset and leap seconds from the system tz database.
+leapseclist /usr/share/zoneinfo/leap-seconds.list
+
+# Include configuration files found in /etc/chrony/conf.d.
+confdir /etc/chrony/conf.d
+
+# Allow local command access for the chronyc monitor.
 allow 127/8
 bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
+# ==============================================================================
+# ULTIMATE FAILSAFE: The Hardware RTC (DS3231)
+# ==============================================================================
+# This directive enables silent kernel synchronisation (every 11 minutes) of the
+# real-time clock. If both the GPS and Network fail, the Pi will pull time from 
+# the battery-backed chip on boot.
+rtcsync
+
+# ==============================================================================
+# PRIORITY 1: The Master Hardware Clock (GPS NMEA + PPS)
+# ==============================================================================
+# The 'prefer trust' tags force Chrony to select the high-precision hardware pulse
+# over the internet network pools whenever it is available.
+refclock SHM 0 offset 0.1 delay 0.2 refid NMEA
+refclock PPS /dev/pps0 refid PPS lock NMEA prefer trust
+
+# ==============================================================================
+# PRIORITY 2: The Internet (Network Pools)
+# ==============================================================================
+# These act as the active fallback if the GPS antenna loses satellite lock.
+pool 2.debian.pool.ntp.org iburst
+pool time.nist.gov iburst
+
+# ==============================================================================
+# Logging Configuration
+# ==============================================================================
 logdir /var/log/chrony
 log statistics tracking measurements
 EOF
