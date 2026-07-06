@@ -39,7 +39,7 @@ refclock PPS /dev/pps0 refid PPS lock NMEA
 # PRIORITY 3: Hardware Failsafe (DS3231 RTC)
 # ------------------------------------------------------------------------------
 # Stratum 10 ensures this is only claimed if both Modem and GPS are offline.
-refclock RTC /dev/rtc0 stratum 10 refid RTC
+#refclock RTC /dev/rtc0 stratum 10 refid RTC
 
 # ------------------------------------------------------------------------------
 # System Directives
@@ -54,7 +54,7 @@ bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
 logdir /var/log/chrony
-log statistics sourcestats tracking
+log statistics tracking measurements
 EOF
 
 echo "[+] Configuration injected successfully."
