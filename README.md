@@ -44,9 +44,6 @@ This script handles the entire configuration pipeline in one pass:
 * **Phase 2 (RTC):** Enables the ARM I2C bus, mounts the `ds3231` kernel overlay, and tests the hardware hex address (0x68).
 * **Phase 3 (Chrony):** Injects the prioritized Stratum failover logic (Modem -> GPS -> RTC) into the `chrony` daemon.
 
-```bash
-sudo ./setup_timing_system.sh
-
 ### 📊 Automated Benchmarking & Utilities
 
 * **Jitter Showdown (`jitter_logger.py`)**
