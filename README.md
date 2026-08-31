@@ -47,39 +47,44 @@ This script handles the entire configuration pipeline in one pass:
 ```bash
 sudo ./setup_timing_system.sh
 
-📊 Automated Benchmarking & Utilities
-Jitter Showdown (jitter_logger.py)
-Used for Test 2.1. Automatically polls chronyc sourcestats over a 1-hour period, comparing the electrical variance (Std Dev) of the modern NEO-7M against the older NEO-6M, exporting results to a CSV file.
+### 📊 Automated Benchmarking & Utilities
 
-Usage: nohup python3 jitter_logger.py & (Runs safely in the background).
+* **Jitter Showdown (`jitter_logger.py`)**
+    * Used for Test 2.1.
+    * Automatically polls `chronyc sourcestats` over a 1-hour period.
+    * Compares the electrical variance (Std Dev) of the modern NEO-7M against the older NEO-6M.
+    * Exports results to a CSV file.
+    * **Usage:** `nohup python3 jitter_logger.py &` (Runs safely in the background).
 
-Single-Shot Coordinates (get_gpscoords.py)
-A command-line utility that safely taps into the gpsd socket, bypasses the daemon handshake, pulls a single highly-accurate TPV (Time-Position-Velocity) coordinate, and exits.
+* **Single-Shot Coordinates (`get_gpscoords.py`)**
+    * A command-line utility that safely taps into the `gpsd` socket.
+    * Bypasses the daemon handshake.
+    * Pulls a single highly-accurate TPV (Time-Position-Velocity) coordinate and exits.
+    * **Usage:** `python3 get_gpscoords.py`
+    * **Dependencies:** `sudo apt install python3-gps`
 
-Usage: python3 get_gpscoords.py
+---
 
-Dependencies: sudo apt install python3-gps
+### 🛠️ Common Diagnostics
 
-🛠️ Common Diagnostics
 If you experience timing or lock issues, run the following verification commands:
 
-Check Satellite Lock: gpsmon (Requires 3D Fix and SNR > 30)
+* **Check Satellite Lock:** `gpsmon` (Requires 3D Fix and SNR > 30)
+* **Check PPS Electrical Pulse:** `sudo ppstest /dev/pps0`
+* **Check Chrony Scoreboard:** `chronyc sources -v`
+* **Check RTC Hex Address:** `sudo i2cdetect -y 1`
+* **Stamp GPS Time to RTC:** `sudo hwclock -w`
 
-Check PPS Electrical Pulse: sudo ppstest /dev/pps0
+---
 
-Check Chrony Scoreboard: chronyc sources -v
+### 🐙 Version Control (GitHub Deployment)
 
-Check RTC Hex Address: sudo i2cdetect -y 1
-
-Stamp GPS Time to RTC: sudo hwclock -w
-
-🐙 Version Control (GitHub Deployment)
 To safely package this suite and push it to a GitHub repository without including background logs or large ECE benchmark CSV files:
 
-1. Configure Git Ignore
-Create a .gitignore file in your project directory:
+#### 1. Configure Git Ignore
+Create a `.gitignore` file in your project directory:
 
-Plaintext
+```plaintext
 # Python caches
 __pycache__/
 *.py[cod]
@@ -94,17 +99,22 @@ nohup.out
 
 # OS generated files
 .DS_Store
-2. Initialize and Commit
+```
+
+#### 2. Initialize and Commit
 Initialize the local repository and commit the scripts:
 
-Bash
+```bash
 git init
 git add .
 git commit -m "Initial commit: Stratum-1 Time Server deployment and benchmark scripts"
 git branch -M main
-3. Push to Remote Repository
+```
+
+#### 3. Push to Remote Repository
 Link to your empty GitHub repository and push the code:
 
-Bash
-git remote add origin [https://github.com/YourUsername/your-repo-name.git](https://github.com/YourUsername/your-repo-name.git)
+```bash
+git remote add origin https://github.com/YourUsername/your-repo-name.git
 git push -u origin main
+```
