@@ -36,59 +36,50 @@ This system utilizes a tiered failover hierarchy managed by the `chronyd` daemon
 
 ## 📜 File Manifest & Deployment
 
-The deployment process is fully automated via bash scripts featuring built-in hardware diagnostic suites. Run them in the following order:
+The deployment process is fully automated via a single, unified bash script featuring built-in hardware diagnostic suites and sequential configuration. 
 
-### 1. OS & GPS Deployment (`setup_gps.sh`)
-Frees the high-performance hardware UART, binds the PPS GPIO overlay, installs `gpsd`, and verifies physical wiring.
+### Unified Deployment (`GPS_Timing_Setup.sh`)
+This script handles the entire configuration pipeline in one pass:
+* **Phase 1 (GPS):** Frees the high-performance hardware UART, binds the PPS GPIO overlay, installs `gpsd`, and verifies NEO-7M wiring.
+* **Phase 2 (RTC):** Enables the ARM I2C bus, mounts the `ds3231` kernel overlay, and tests the hardware hex address (0x68).
+* **Phase 3 (Chrony):** Injects the prioritized Stratum failover logic (Modem -> GPS -> RTC) into the `chrony` daemon.
+
 ```bash
-sudo ./NEO_7M_SetUp.sh
-```
-*(Requires Reboot)*
+sudo ./setup_timing_system.sh
 
-### 2. RTC Deployment (`setup_rtc.sh`)
-Enables the ARM I2C bus, mounts the `ds3231` kernel overlay, and tests the hardware hex address (0x68).
-```bash
-sudo ./RTC_SetUp.sh
-```
-*(Requires Reboot)*
+📊 Automated Benchmarking & Utilities
+Jitter Showdown (jitter_logger.py)
+Used for Test 2.1. Automatically polls chronyc sourcestats over a 1-hour period, comparing the electrical variance (Std Dev) of the modern NEO-7M against the older NEO-6M, exporting results to a CSV file.
 
-### 3. Failover Configuration (`setup_chrony_modem_priority.sh`)
-Injects the prioritized Stratum failover logic into the `chrony` daemon. 
-```bash
-sudo ./Chrony_SetUp.sh
-```
+Usage: nohup python3 jitter_logger.py & (Runs safely in the background).
 
----
+Single-Shot Coordinates (get_gpscoords.py)
+A command-line utility that safely taps into the gpsd socket, bypasses the daemon handshake, pulls a single highly-accurate TPV (Time-Position-Velocity) coordinate, and exits.
 
-## 📊 Automated Benchmarking & Utilities
+Usage: python3 get_gpscoords.py
 
-### Jitter Showdown (`jitter_logger.py`)
-Used for Test 2.1. Automatically polls `chronyc sourcestats` over a 1-hour period, comparing the electrical variance (Std Dev) of the modern NEO-7M against the older NEO-6M, exporting results to a CSV file.
-* **Usage:** `nohup python3 jitter_logger.py &` (Runs safely in the background).
+Dependencies: sudo apt install python3-gps
 
-### Single-Shot Coordinates (`get_gpscoords.py`)
-A command-line utility that safely taps into the `gpsd` socket, bypasses the daemon handshake, pulls a single highly-accurate TPV (Time-Position-Velocity) coordinate, and exits.
-* **Usage:** `python3 get_gpscoords.py`
-* **Dependencies:** `sudo apt install python3-gps`
-
----
-
-## 🛠️ Common Diagnostics
+🛠️ Common Diagnostics
 If you experience timing or lock issues, run the following verification commands:
-* **Check Satellite Lock:** `gpsmon` (Requires 3D Fix and SNR > 30)
-* **Check PPS Electrical Pulse:** `sudo ppstest /dev/pps0`
-* **Check Chrony Scoreboard:** `chronyc sources -v`
-* **Check RTC Hex Address:** `sudo i2cdetect -y 1`
 
----
+Check Satellite Lock: gpsmon (Requires 3D Fix and SNR > 30)
 
-## 🐙 Version Control (GitHub Deployment)
+Check PPS Electrical Pulse: sudo ppstest /dev/pps0
 
+Check Chrony Scoreboard: chronyc sources -v
+
+Check RTC Hex Address: sudo i2cdetect -y 1
+
+Stamp GPS Time to RTC: sudo hwclock -w
+
+🐙 Version Control (GitHub Deployment)
 To safely package this suite and push it to a GitHub repository without including background logs or large ECE benchmark CSV files:
 
-### 1. Configure Git Ignore
-Create a `.gitignore` file in your project directory:
-```text
+1. Configure Git Ignore
+Create a .gitignore file in your project directory:
+
+Plaintext
 # Python caches
 __pycache__/
 *.py[cod]
@@ -103,20 +94,17 @@ nohup.out
 
 # OS generated files
 .DS_Store
-```
-
-### 2. Initialize and Commit
+2. Initialize and Commit
 Initialize the local repository and commit the scripts:
-```bash
+
+Bash
 git init
 git add .
 git commit -m "Initial commit: Stratum-1 Time Server deployment and benchmark scripts"
 git branch -M main
-```
-
-### 3. Push to Remote Repository
+3. Push to Remote Repository
 Link to your empty GitHub repository and push the code:
-```bash
+
+Bash
 git remote add origin [https://github.com/YourUsername/your-repo-name.git](https://github.com/YourUsername/your-repo-name.git)
 git push -u origin main
-```
