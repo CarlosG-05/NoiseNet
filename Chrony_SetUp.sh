@@ -57,15 +57,15 @@ rtcsync
 # ==============================================================================
 # The 'prefer trust' tags force Chrony to select the high-precision hardware pulse
 # over the internet network pools whenever it is available.
-refclock SHM 0 offset 0.1 delay 0.2 refid NMEA
-refclock PPS /dev/pps0 refid PPS lock NMEA prefer trust
+refclock SHM 0 offset 0.1 delay 0.1 poll 0 refid NMEA
+refclock PPS /dev/pps0 refid PPS lock NMEA poll 0 prefer trust
 
 # ==============================================================================
 # PRIORITY 2: The Internet (Network Pools)
 # ==============================================================================
 # These act as the active fallback if the GPS antenna loses satellite lock.
-pool 2.debian.pool.ntp.org iburst
-pool time.nist.gov iburst
+pool 2.debian.pool.ntp.org iburst minpoll 4 maxpoll 4
+pool time.nist.gov iburst minpoll 4 maxpoll 4
 
 # ==============================================================================
 # Logging Configuration
