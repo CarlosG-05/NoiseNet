@@ -13,9 +13,9 @@ function show_menu() {
     echo "========================================================================="
     echo " ⏱️  GPS & RTC FAILOVER TEST SUITE"
     echo "========================================================================="
-    echo " 1) Phase 1 & 2: Time Travel & GPS Recovery Test (Auto-Wait)"
-    echo " 2) Phase 3: Kernel 11-Minute RTC Sync Logger"
-    echo " 3) Phase 4: Ultimate Failsafe (Offline Boot) Instructions"
+    echo " 1) Test 1: Time Travel & GPS Recovery Test (Auto-Wait)"
+    echo " 2) Test 2: Kernel 11-Minute RTC Sync Logger"
+    echo " 3) Test 3: Ultimate Failsafe (Offline Boot) Instructions"
     echo " 4) Exit"
     echo "========================================================================="
     read -p "Select a test to run (1-4): " choice
